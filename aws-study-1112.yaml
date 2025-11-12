@@ -174,27 +174,20 @@ Resources:
             Tags:
                 - Key: Name
                   Value: aws-study-DB-SG
-    DBParameterGroup:
-      Type: AWS::RDS::DBParameterGroup
-      Properties:
-            Description: Custom MySQL Parameter Group
-            Family: mysql8.0.43
-            Parameters:
-                max_connections: '500'
-                innodb_flush_log_at_trx_commit: '2'
+
     RDSInstance:
       Type: AWS::RDS::DBInstance
       Properties:
             DBInstanceClass: db.t3.micro
             AllocatedStorage: 20
             Engine: mysql
-            EngineVersion: 8.0.43
+            EngineVersion: 8.0.42
             MasterUsername: root
             MasterUserPassword: abcz1112     # Secrets Manager推奨
             DBName: mydatabase
             VPCSecurityGroups:
                 - !Ref DBSecurityGroup
-            DBParameterGroupName: !Ref DBParameterGroup
+            DBSubnetGroupName: !Ref RDSSubnetGroup
             MultiAZ: false
             PubliclyAccessible: false
             StorageType: gp3
@@ -209,6 +202,7 @@ Resources:
             DBSubnetGroupDescription: Subnet group for RDS
             SubnetIds:
                 - !Ref PrivateSubnetAZ1a
+                - !Ref PrivateSubnetAZ1c
             DBSubnetGroupName: rds-subnet-group
 
     #ELB
