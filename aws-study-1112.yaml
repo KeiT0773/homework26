@@ -3,10 +3,10 @@ Description: AWS-Study Template
 
 Resources:
     #VPC
-    VPC:
+    VPC:                                  # VPCの設定
         Type: AWS::EC2::VPC
         Properties:
-            CidrBlock: 10.2.0.0/16
+            CidrBlock: 10.2.0.0/16        # 10.2.0.0～10.2.255.255 (65.536個のIP)
             EnableDnsHostnames: true
             EnableDnsSupport: true
             Tags:
@@ -14,66 +14,66 @@ Resources:
                   Value: aws-study-vpc
                   
     #Subnet
-    PublicSubnetAZ1a:
+    PublicSubnetAZ1a:                     # PublicSubnetAZ1aの設定
       Type: AWS::EC2::Subnet
       Properties:
         AvailabilityZone: ap-northeast-1a
-        MapPublicIpOnLaunch : true
+        MapPublicIpOnLaunch : true        # 外部アクセスあり
         VpcId: !Ref VPC
-        CidrBlock: 10.2.0.0/24
+        CidrBlock: 10.2.0.0/24            # 10.2.0.0～10.2.0.255 (256個のIP)
         Tags:
           - Key: Name
             Value: aws-study-publicsubnetaz1a
 
-    PublicSubnetAZ1c:
+    PublicSubnetAZ1c:                     # PublicSubnetAZ1cの設定
       Type: AWS::EC2::Subnet
       Properties:
         AvailabilityZone: ap-northeast-1c
-        MapPublicIpOnLaunch : true
+        MapPublicIpOnLaunch : true        # 外部アクセスあり
         VpcId: !Ref VPC
-        CidrBlock: 10.2.1.0/24
+        CidrBlock: 10.2.1.0/24            # 10.2.1.0～10.2.1.255 (256個のIP)
         Tags:
           - Key: Name
             Value: aws-study-publicsubnetaz1c
 
-    PrivateSubnetAZ1a:
+    PrivateSubnetAZ1a:                    # PrivateSubnetAZ1aの設定
       Type: AWS::EC2::Subnet
       Properties:
         AvailabilityZone: ap-northeast-1a
-        MapPublicIpOnLaunch : false
+        MapPublicIpOnLaunch : false       # 外部アクセスなし
         VpcId: !Ref VPC
-        CidrBlock: 10.2.2.0/24
+        CidrBlock: 10.2.2.0/24            #  10.2.2.0～10.2.2.255 (256個のIP)
         Tags:
           - Key: Name
             Value: aws-study-privatesubnetaz1a
 
-    PrivateSubnetAZ1c:
+    PrivateSubnetAZ1c:                    # PrivateSubnetAZ1cの設定
       Type: AWS::EC2::Subnet
       Properties:
         AvailabilityZone: ap-northeast-1c
-        MapPublicIpOnLaunch : false
+        MapPublicIpOnLaunch : false       # 外部アクセスなし
         VpcId: !Ref VPC
-        CidrBlock: 10.2.3.0/24
+        CidrBlock: 10.2.3.0/24            #  10.2.3.0～10.2.3.255 (256個のIP)
         Tags:
           - Key: Name
             Value: aws-study-privatesubnetaz1c
       
     #InrenetGateway
-    InternetGateway:
+    InternetGateway:                      # InternetGatewayのリソース作成
       Type: AWS::EC2::InternetGateway
       Properties:
         Tags:
           - Key: Name
             Value: aws-study-IGW
 
-    AttachGateway:
+    AttachGateway:                        # InternetGatewayをVPCへ接続
       Type: AWS::EC2::VPCGatewayAttachment
       Properties:
         VpcId: !Ref VPC
         InternetGatewayId: !Ref InternetGateway
     
     #RouteTable
-    PublicRouteTable:
+    PublicRouteTable:                     # PublicSubnetのルートテーブル
         Type: AWS::EC2::RouteTable
         Properties:
             VpcId: !Ref VPC
@@ -81,42 +81,42 @@ Resources:
               - Key: Name
                 Value: PublicRouteTable
 
-    PublicRoute:
+    PublicRoute:                           # PublicSubnetのルートテーブル:0.0.0.0/0 --> IGW
         Type: AWS::EC2::Route
         Properties:
             RouteTableId: !Ref PublicRouteTable
             DestinationCidrBlock: 0.0.0.0/0
             GatewayId: !Ref InternetGateway
 
-    PublicSubnetAZ1aRouteTableAssociation:
+    PublicSubnetAZ1aRouteTableAssociation:  # ルートテーブルとSubnetとの関連付け（Subnet:PublicSubnetAZ1a)
         Type: AWS::EC2::SubnetRouteTableAssociation
         Properties:
             SubnetId: !Ref PublicSubnetAZ1a
             RouteTableId: !Ref PublicRouteTable           
    
-    PublicSubnetAZ1cRouteTableAssociation:
+    PublicSubnetAZ1cRouteTableAssociation:  # ルートテーブルとSubnetとの関連付け（Subnet:PublicSubnetAZ1c)
         Type: AWS::EC2::SubnetRouteTableAssociation
         Properties:
             SubnetId: !Ref PublicSubnetAZ1c
             RouteTableId: !Ref PublicRouteTable
     
-    PrivateRouteTableAZ1a:
+    PrivateRouteTableAZ1a:                  # PrivateSubnetのルートテーブル：VPC内通信のみ
         Type: AWS::EC2::RouteTable
         Properties:
             VpcId: !Ref VPC
 
-    PrivateSubnetAZ1aRouteTableAssociation:
+    PrivateSubnetAZ1aRouteTableAssociation: # ルートテーブルとSubnetとの関連付け（Subnet:PrivateSubnetAZ1a)
         Type: AWS::EC2::SubnetRouteTableAssociation
         Properties:
             SubnetId: !Ref PrivateSubnetAZ1a
             RouteTableId: !Ref PrivateRouteTableAZ1a
 
-    PrivateRouteTableAZ1c:
+    PrivateRouteTableAZ1c:                  # PrivateSubnetのルートテーブル：VPC内通信のみ
         Type: AWS::EC2::RouteTable
         Properties:
             VpcId: !Ref VPC
 
-    PrivateSubnetAZ1cRouteTableAssociation:
+    PrivateSubnetAZ1cRouteTableAssociation: # ルートテーブルとSubnetとの関連付け（Subnet:PrivateSubnetAZ1c)
         Type: AWS::EC2::SubnetRouteTableAssociation
         Properties:
             SubnetId: !Ref PrivateSubnetAZ1c
@@ -126,36 +126,36 @@ Resources:
     EC2InstanceInPublicAZ1a:
         Type: AWS::EC2::Instance
         Properties:
-            InstanceType: t3.micro
-            ImageId: ami-01205c30badb279ec
-            SubnetId: !Ref PublicSubnetAZ1a
-            KeyName: aws-study
+            InstanceType: t3.micro          # インスタンスタイプ
+            ImageId: ami-01205c30badb279ec  # アプリケーションおよびOSイメージ（Amazonマシンイメージ）
+            SubnetId: !Ref PublicSubnetAZ1a # ネットワーク設定（サブネット）
+            KeyName: aws-study              # キーペア（キーペア名）
             SecurityGroupIds:
-                - !Ref EC2SecurityGroup 
+                - !Ref EC2SecurityGroup     # ネットワーク設定（セキュリティグループ）
             Tags:
                 - Key: Name
                   Value: EC2InPublicAZ1a
-            DisableApiTermination: true       # ← 終了保護を有効にする設定
+            DisableApiTermination: true     # 高度な詳細（終了保護：有効化）
     
     #SecurityGroup
-    EC2SecurityGroup:
+    EC2SecurityGroup:                       # ネットワーク設定（セキュリティグループ）
         Type: AWS::EC2::SecurityGroup
         Properties:
             GroupDescription: EC2 access
             VpcId: !Ref VPC
-            SecurityGroupIngress:
-                - IpProtocol: tcp
-                  FromPort: 22
-                  ToPort: 22
-                  CidrIp: 0.0.0.0/0  # SSH
-                - IpProtocol: tcp
-                  FromPort: 80
-                  ToPort: 80
-                  CidrIp: 0.0.0.0/0  # HTTP
-                - IpProtocol: tcp
-                  FromPort: 443
-                  ToPort: 443
-                  CidrIp: 0.0.0.0/0  # HTTPS
+            SecurityGroupIngress:           # インバウンドセキュリティグループのルール
+                - IpProtocol: tcp           # プロトコル（SSH）
+                  FromPort: 22              # ポート範囲
+                  ToPort: 22                # ポート範囲
+                  CidrIp: 0.0.0.0/0         # 全IPアドレスからのアクセス許可      
+                - IpProtocol: tcp           # プロトコル（HTTP）
+                  FromPort: 80              # ポート範囲
+                  ToPort: 80                # ポート範囲
+                  CidrIp: 0.0.0.0/0         # 全IPアドレスからのアクセス許可 
+                - IpProtocol: tcp           # プロトコル（HTTPS）
+                  FromPort: 443             # ポート範囲
+                  ToPort: 443               # ポート範囲
+                  CidrIp: 0.0.0.0/0         # 全IPアドレスからのアクセス許可 
             Tags:
                 - Key: Name
                   Value: aws-study-EC2-SG
@@ -165,12 +165,12 @@ Resources:
       Type: AWS::EC2::SecurityGroup
       Properties:
             GroupDescription: MySQL access
-            VpcId: !Ref VPC
+            VpcId: !Ref VPC                 # 接続（VPCセキュリティグループ：既存の選択）
             SecurityGroupIngress:
-                - IpProtocol: tcp
-                  FromPort: 3306
-                  ToPort: 3306
-                  SourceSecurityGroupId: !Ref EC2SecurityGroup
+                - IpProtocol: tcp           # プロトコル
+                  FromPort: 3306            # 接続（追加設定：データベースポート）
+                  ToPort: 3306              # 接続（追加設定：データベースポート）
+                  SourceSecurityGroupId: !Ref EC2SecurityGroup  #EC2SecurityGroup に属するインスタンスからの TCP 3306 ポートへの通信のみ許可
             Tags:
                 - Key: Name
                   Value: aws-study-DB-SG
@@ -178,80 +178,80 @@ Resources:
     RDSInstance:
       Type: AWS::RDS::DBInstance
       Properties:
-            DBInstanceClass: db.t3.micro
-            AllocatedStorage: 20
-            Engine: mysql
-            EngineVersion: 8.0.42
-            MasterUsername: root
-            MasterUserPassword: abcz1112     # Secrets Manager推奨
-            DBName: mydatabase
+            DBInstanceClass: db.t3.micro     # インスタンスの設定（DBインスタンスクラス）
+            AllocatedStorage: 20             # ストレージ（ストレージ割り当て）
+            Engine: mysql                    # エンジンのオプション（エンジンのタイプ）
+            EngineVersion: 8.0.42            # エンジンのオプション（エンジンバージョン）
+            MasterUsername: root             # 認証情報の設定（マスターユーザー名）
+            MasterUserPassword: abcz1112     # 認証情報の設定（セルフマネージド：マスターパスワード）
+            DBName: mydatabase               # 認証情報の設定（DBインスタンス識別子）
             VPCSecurityGroups:
                 - !Ref DBSecurityGroup
-            DBSubnetGroupName: !Ref RDSSubnetGroup
-            MultiAZ: false
-            PubliclyAccessible: false
-            StorageType: gp3
-            BackupRetentionPeriod: 7
-            DeletionProtection: true
+            DBSubnetGroupName: !Ref RDSSubnetGroup # 接続（DBサブネットグループ）
+            MultiAZ: false                   # 可用性と耐久性（デプロイオプション：シングルAZ DB）
+            PubliclyAccessible: false        # 接続（パブリックアクセス；なし）
+            StorageType: gp3                 # ストレージ（汎用SSD(gp3)）
+            BackupRetentionPeriod: 7         # 追加設定（バックアップ保持期間：7日間）
+            DeletionProtection: true         # 追加設定（削除保護の有効化）
             Tags:
                 - Key: Name
                   Value: RDSInstance
-    RDSSubnetGroup:
+    RDSSubnetGroup:                          # 接続（DBサブネットグループ）
       Type: AWS::RDS::DBSubnetGroup
       Properties:
             DBSubnetGroupDescription: Subnet group for RDS
-            SubnetIds:
+            SubnetIds:                       # サブネットIDは必ず２つ以上必要
                 - !Ref PrivateSubnetAZ1a
                 - !Ref PrivateSubnetAZ1c
             DBSubnetGroupName: rds-subnet-group
 
     #ELB
-    ALBSecurityGroup:
+    ALBSecurityGroup:                        # セキュリティグループの設定
       Type: AWS::EC2::SecurityGroup
       Properties:
         GroupDescription: Allow HTTP access to ALB
-        VpcId: !Ref VPC
+        VpcId: !Ref VPC                      # ネットワークマッピング（VPC）
         SecurityGroupIngress:
-          - IpProtocol: tcp
-            FromPort: 80
-            ToPort: 80
-            CidrIp: 0.0.0.0/0
-    ALB:
+          - IpProtocol: tcp                  # プロトコル（HTTP）
+            FromPort: 80                     # ポート
+            ToPort: 80                       # ポート
+            CidrIp: 0.0.0.0/0                # 全IPアドレスからのアクセス許可
+    ALB:                                     # アプリケーションロードバランサ―の作成
       Type: AWS::ElasticLoadBalancingV2::LoadBalancer
       Properties:
-        Name: aws-study-ALB
-        Scheme: internet-facing
-        Subnets:
+        Name: aws-study-ALB                  # 基本的な設定（ロードバランサ―名）
+        Scheme: internet-facing              # 基本的な設定（スキーム：インターネット向け）
+        Subnets:                             # ネットワークマッピング（アベイラビリティゾーンとサブネット）
           - !Ref PublicSubnetAZ1a
           - !Ref PublicSubnetAZ1c
         SecurityGroups:
-          - !Ref ALBSecurityGroup
+          - !Ref ALBSecurityGroup            # セキュリティグループの設定
         Type: application
     
-    TargetGroup:
+    TargetGroup:                              # ターゲットグループの作成　＊ALBリソース後、ターゲットの登録はGUIで実施
       Type: AWS::ElasticLoadBalancingV2::TargetGroup
       Properties:
-        Name: aws-study-tg
-        Port: 80
-        Protocol: HTTP
-        VpcId: !Ref VPC
-        TargetType: instance
-        HealthCheckProtocol: HTTP
-        HealthCheckPort: "80"
-        HealthCheckPath: /
-        HealthCheckIntervalSeconds: 30
-        HealthCheckTimeoutSeconds: 5
-        HealthyThresholdCount: 5
-        UnhealthyThresholdCount: 2
-        Matcher:
-          HttpCode: 200,300,301
+        Name: aws-study-tg                    # Setting（ターゲットグループ名）
+        Port: 80                              # Setting（ポート）
+        Protocol: HTTP                        # Setting（プロトコル）
+        VpcId: !Ref VPC                       # Setting（VPC）
+        TargetType: instance                  # Setting（ターゲットの種類：インスタンス）
+        HealthCheckProtocol: HTTP             # ヘルスチェック（ヘルスチェックプロトコル）
+        HealthCheckPort: "80"                 # ヘルスチェックの詳細設定（ヘルスチェックポート）＊トラフィックポートの場合："traffic-port"
+        HealthCheckPath: /                    # ヘルスチェック（ヘルスチェックパス）
+        HealthCheckIntervalSeconds: 30        # ヘルスチェックの詳細設定（間隔：30秒）
+        HealthCheckTimeoutSeconds: 5          # ヘルスチェックの詳細設定（タイムアウト：5秒）
+        HealthyThresholdCount: 5              # ヘルスチェックの詳細設定（正常のしきい値：5回）
+        UnhealthyThresholdCount: 2            # ヘルスチェックの詳細設定（非正常のしきい値：2回）
+        Matcher:        
+          HttpCode: 200,300,301               # ヘルスチェックの詳細設定（成功コード）
     
-    Listener:
+    Listener:                                 # リスナーの設定
       Type: AWS::ElasticLoadBalancingV2::Listener
       Properties:
         LoadBalancerArn: !Ref ALB
-        Port: 80
-        Protocol: HTTP
+        Port: 80                              # リスナーとルーティング（ポート）
+        Protocol: HTTP                        # リスナーとルーティング（プロトコル）
         DefaultActions:
-          - Type: forward
+          - Type: forward                     # アクションのルーティング（ターゲットグループへ転送）
             TargetGroupArn: !Ref TargetGroup
